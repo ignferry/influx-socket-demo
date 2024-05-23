@@ -1,0 +1,17 @@
+{
+  "name": "data-retriever",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.33.2",
+    "dotenv": "^16.4.5",
+    "mqtt": "^5.6.1"
+  }
+}
