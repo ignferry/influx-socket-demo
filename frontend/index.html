@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.io Influx Demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:3001', {
+        auth: {
+            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjozLCJnZW5lcmFsX3JvbGUiOiJhZG1pbiIsInByaXZpbGVnZV9pZCI6M30sImlhdCI6MTcxNTM1NDExOH0.oX3P64UqqXrU4Llsm7i-WwZp8dy-JiyMG6v5Fi2H1fs'
+        }
+    });
+
+    // Subscribe to receive updates of a list of msisdn's quota
+    // msisdns: string[] => array of msisdns
+    // jwt: string => jwt token
+    function subscribeMsisdnQuota(msisdns, jwt) {
+      socket.emit('subscribe_msisdn_quota', msisdns, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjozLCJnZW5lcmFsX3JvbGUiOiJhZG1pbiIsInByaXZpbGVnZV9pZCI6M30sImlhdCI6MTcxNTM1NDExOH0.oX3P64UqqXrU4Llsm7i-WwZp8dy-JiyMG6v5Fi2H1fs');
+    }
+
+    // Called as a response to subscription request
+    // success_card_msisdns: string[] => array of msisdns that the client has successfully subscribed
+    // failed_card_msisdns: string[] => array of msisdns that the client has failed to subscribe for any reason (Ex: No access to MSISDN, MSISDN does not exist)
+    socket.on('subscribed_msisdn_quota', (success_card_msisdns, failed_card_msisdns) => {
+      console.log(`Success: ${success_card_msisdns}`);
+      console.log(`Failed: ${failed_card_msisdns}`);
+    });
+
+    // Called when a quota update of a subscribed msisdn is received
+    // msisdn: string => msisdn of a card
+    // quota: number => amount of quota left in a card in MB
+    // time: string => the time in which the data is retrieved
+    socket.on('quota_update', (msisdn, quota, time) => {
+      console.log(`UPDATE ${time} ${msisdn}: ${quota}MB`);
+    });
+  </script>
+</head>
+<body>
+  <h1>Socket.io Influx Demo</h1>
+
+  <input type="text" id="msisdnInput" placeholder="Enter MSISDN">
+  <button onclick="subscribeMsisdnQuota(document.getElementById('msisdnInput').value.split(' '), 'xx')">Subscribe to MSISDN Quota Update</button>
+  <br>
+  <hr>
+  <console id="console"></console>
+  <script>
+    (function () {
+        var old = console.log;
+        var logger = document.getElementById('console');
+        console.log = function (message) {
+            if (typeof message == 'object') {
+                logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
+            } else {
+                logger.innerHTML += message + '<br />';
+            }
+        }
+    })();
+  </script>
+</body>
+</html>
